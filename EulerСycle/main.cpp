@@ -27,7 +27,6 @@ public:
 		_incidents.pop_back();
 		return tmp;
 	}
-
 	char GetName() const { return _name; }
 	vector<Node*>::const_iterator begin() const { return _incidents.begin(); }
 	vector<Node*>::const_iterator end() const { return _incidents.end(); }
@@ -72,24 +71,19 @@ void DfsModified(Node *v)
 	}
 }
 
-void MakeGraph()
+void WriteGraph()
 {
 	ofstream graph("graph.dot");
 	graph << "digraph A" << endl;
 	graph << "{" << endl;
-
 	for (auto node : Nodes)
-	{
 		for(auto it : *node)
 			graph << node->GetName() << "->" << it->GetName() << endl;
-	}
-
 	graph << "}" << endl;
-
 	graph.close();
 }
 
-void SearchEulerCycle()
+void SearchAndWriteEulerCycle()
 {
 	ofstream cycle("EulerCycle.dot");
 	cycle << "digraph A" << endl;
@@ -106,11 +100,10 @@ void SearchEulerCycle()
 		}
 	}
 	cycle << "}" << endl;
-
 	cycle.close();
 }
 
-int main()
+void ReadNodesName()
 {
 	string line;
 	char name;
@@ -120,7 +113,11 @@ int main()
 
 	while (buf >> name)
 		Nodes.push_back(new Node(name));
+}
 
+void ReadAdjacencyMatrix()
+{
+	string line;
 	for (auto it : Nodes)
 	{
 		getline(cin, line);
@@ -130,14 +127,19 @@ int main()
 		while (buf >> tmp)
 			if (isdigit(tmp))
 			{
-				if(GetDig(tmp) == 1)
+				if (GetDig(tmp) == 1)
 					it->AddIncident(Nodes[i]);
 				i++;
 			}
 	}
+}
 
-	MakeGraph();
-	SearchEulerCycle();
+int main()
+{
+	ReadNodesName();
+	ReadAdjacencyMatrix();
+	WriteGraph();
+	SearchAndWriteEulerCycle();
 	ClearNodes();
 	return 0;
 }
