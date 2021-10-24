@@ -1,6 +1,7 @@
 #include <iostream>
 #include <sstream>
 #include <vector>
+#include <fstream>  
 
 using namespace std;
 
@@ -15,17 +16,21 @@ public:
 	void AddIncident(Node* it) 
 	{
 		_incidents.push_back(it); 
-		this->_outdeg++;
+		_outdeg++;
 		it->_indeg++;
 	}
-	bool CheckEdge() { return _indeg == _outdeg; }
-	bool IsEmpty() { return _incidents.empty(); }
+	bool CheckEdge() const { return _indeg == _outdeg; }
+	bool IsEmpty() const { return _incidents.empty(); }
 	Node *PopIncident()
 	{
 		auto tmp = _incidents.back();
 		_incidents.pop_back();
 		return tmp;
 	}
+
+	char GetName() const { return _name; }
+	vector<Node*>::const_iterator begin() const { return _incidents.begin(); }
+	vector<Node*>::const_iterator end() const { return _incidents.end(); }
 	friend ostream& operator<<(ostream& out, const Node& it);
 };
 
@@ -67,6 +72,44 @@ void DfsModified(Node *v)
 	}
 }
 
+void MakeGraph()
+{
+	ofstream graph("graph.dot");
+	graph << "digraph A" << endl;
+	graph << "{" << endl;
+
+	for (auto node : Nodes)
+	{
+		for(auto it : *node)
+			graph << node->GetName() << "->" << it->GetName() << endl;
+	}
+
+	graph << "}" << endl;
+
+	graph.close();
+}
+
+void SearchEulerCycle()
+{
+	ofstream cycle("EulerCycle.dot");
+	cycle << "digraph A" << endl;
+	cycle << "{" << endl;
+	if (CheckEulerCycle())
+	{
+		DfsModified(Nodes[0]);
+		auto prev = Path.back();
+		auto i = Path.size();
+		for (auto it : Path)
+		{
+			cycle << *it << "->" << *prev << "[label = " << i-- << "]" << endl;
+			prev = it;
+		}
+	}
+	cycle << "}" << endl;
+
+	cycle.close();
+}
+
 int main()
 {
 	string line;
@@ -93,20 +136,14 @@ int main()
 			}
 	}
 
-	if (CheckEulerCycle())
-	{
-		DfsModified(Nodes[0]);
-		for (auto it : Path)
-			cout << *it << "<-";
-		cout << *Nodes[0] << endl;
-	}
-
+	MakeGraph();
+	SearchEulerCycle();
 	ClearNodes();
 	return 0;
 }
 
 /*
-1 2 3 4 5 6
+a b c d e f
 0 1 1 0 0 0 
 0 0 0 1 1 0
 0 1 0 1 0 0

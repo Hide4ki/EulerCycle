@@ -1,0 +1,13 @@
+digraph A
+{
+a->c[label = 10]
+d->a[label = 9]
+b->d[label = 8]
+a->b[label = 7]
+e->a[label = 6]
+b->e[label = 5]
+c->b[label = 4]
+f->c[label = 3]
+d->f[label = 2]
+c->d[label = 1]
+}
